@@ -1,12 +1,19 @@
-import { Response, ResponseResultType } from 'src/utils/response';
+import { ResponseResultType, Response } from './response.instance';
 
 // Fungsi template yang bisa digunakan untuk format pesan dinamis
 function formatMessage(template: string, args: any[]): string {
-  return template.replace(/\$\{(\d+)\}/g, (match, index) => args[index] || match);
+  return template.replace(
+    /\$\{(\d+)\}/g,
+    (match, index) => args[index] || match,
+  );
 }
 
 export function FormatResponse(messageTemplate: string, constant: string) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (
+    target: any,
+    propertyKey: string,
+    descriptor: PropertyDescriptor,
+  ) {
     const originalMethod = descriptor.value;
 
     descriptor.value = function (...args: any[]): ResponseResultType {

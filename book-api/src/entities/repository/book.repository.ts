@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
-import { BookDto } from '../dto/book/book.dto';
-import { CreateBookDto } from '../dto/book/create-book.dto';
-import { UpdateBookDto } from '../dto/book/update-book.dto';
+import { BookDto } from '../model/book/book.dto';
+import { CreateBookDto } from '../model/book/create-book.dto';
+import { UpdateBookDto } from '../model/book/update-book.dto';
 
 @Injectable()
 export class BookRepository implements OnModuleInit {
@@ -65,7 +65,7 @@ export class BookRepository implements OnModuleInit {
       title: createBookDto.title,
       desc: createBookDto.desc,
       category: createBookDto.category,
-      isActive: createBookDto.isActive ?? true, // Default to active if not provided
+      isActive: true, // Default to active if not provided
     };
     this.books.push(newBook);
     return newBook;

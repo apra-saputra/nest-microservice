@@ -1,33 +1,73 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Res,
+  HttpStatus,
+  UseFilters,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { FavoriteService } from './favorite.service';
-import { CreateFavoriteDto } from '../entities/dto/favorite/create-favorite.dto';
+import { Response } from 'express';
+import { AllExceptionsFilter } from 'src/utils/catch.exception';
+import { PostFavoriteDto } from './dto/post.dto';
+import { ValidationPipe } from 'src/utils/validation.pipe';
 
-@Controller('favorite')
+@Controller('favorites')
+@UseFilters(AllExceptionsFilter)
 export class FavoriteController {
   constructor(private readonly favoriteService: FavoriteService) {}
 
-  @Post()
-  create(@Body() createFavoriteDto: CreateFavoriteDto) {
-    return this.favoriteService.create(createFavoriteDto);
+  @Post(':userId')
+  create(
+    @Res() res: Response,
+    @Body(new ValidationPipe()) createFavoriteDto: PostFavoriteDto,
+    @Param('userId', ParseIntPipe) userId: number,
+  ) {
+    const responseJson = this.favoriteService.create({
+      userId: +userId,
+      bookId: +createFavoriteDto.bookId,
+    });
+    return res
+      .status(HttpStatus.CREATED)
+      .json({ code: HttpStatus.CREATED, ...responseJson });
   }
 
-  @Get()
-  findAll() {
-    return this.favoriteService.findAll();
+  @Get(':userId')
+  findOne(@Res() res: Response, @Param('userId', ParseIntPipe) userId: number) {
+    const responsejson = this.favoriteService.findUserId(+userId);
+    return res
+      .status(HttpStatus.OK)
+      .json({ code: HttpStatus.OK, ...responsejson });
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.favoriteService.findOne(+id);
+  @Get(':userId/users/:favoriteId')
+  findFavorite(
+    @Res() res: Response,
+    @Param('userId', ParseIntPipe) userId: number,
+    @Param('favoriteId', ParseIntPipe) favoriteId: number,
+  ) {
+    const responsejson = this.favoriteService.findFavorite(
+      +userId,
+      +favoriteId,
+    );
+    return res
+      .status(HttpStatus.OK)
+      .json({ code: HttpStatus.OK, ...responsejson });
   }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateFavoriteDto: UpdateFavoriteDto) {
-  //   return this.favoriteService.update(+id, updateFavoriteDto);
-  // }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.favoriteService.remove(+id);
+  @Delete(':userId/users/:favoriteId')
+  remove(
+    @Res() res: Response,
+    @Param('userId', ParseIntPipe) userId: number,
+    @Param('favoriteId', ParseIntPipe) favoriteId: number,
+  ) {
+    const responseJson = this.favoriteService.remove(+userId, +favoriteId);
+    return res
+      .status(HttpStatus.OK)
+      .json({ code: HttpStatus.OK, ...responseJson });
   }
 }

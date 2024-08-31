@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateBookDto } from '../entities/dto/book/create-book.dto';
-import { UpdateBookDto } from '../entities/dto/book/update-book.dto';
+import { CreateBookDto } from 'src/entities/model/book/create-book.dto';
+import { UpdateBookDto } from 'src/entities/model/book/update-book.dto';
 import { BookRepository } from 'src/entities/repository/book.repository';
-import { FormatResponse } from 'src/utils/formatResponse.decorator';
+import { FormatResponse } from 'src/utils/response/formatResponse.decorator';
 
 @Injectable()
 export class BookService {
@@ -29,12 +29,12 @@ export class BookService {
     return book;
   }
 
-  @FormatResponse('This action updates a #${id} book', 'BOOK_UPDATED')
+  @FormatResponse('This action updates a #${0} book', 'BOOK_UPDATED')
   update(id: number, updateBookDto: UpdateBookDto) {
     return this.bookRepo.update(id, updateBookDto);
   }
 
-  @FormatResponse('This action removes a #${id} book', 'BOOK_DELETED')
+  @FormatResponse('This action removes a #${0} book', 'BOOK_DELETED')
   remove(id: number) {
     this.bookRepo.delete(id);
     return null;

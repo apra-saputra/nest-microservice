@@ -1,29 +1,18 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { FavoriteDto } from '../dto/favorite/favorite.dto';
-import { CreateFavoriteDto } from '../dto/favorite/create-favorite.dto';
+import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import { FavoriteDto } from '../model/favorite/favorite.dto';
+import { CreateFavoriteDto } from '../model/favorite/create-favorite.dto';
+import * as fs from 'fs';
+import { BaseRepository } from './base.repository';
 
 @Injectable()
-export class FavoriteRepository {
-  private favorites: FavoriteDto[] = [];
+export class FavoriteRepository extends BaseRepository<FavoriteDto> {
+  constructor(){
+    super('./src/entities/favorite.json')
+  }
 
-  // Default favorite data to insert on module initialization
-  private readonly defaultData: FavoriteDto[] = [
-    {
-      id: 1,
-      bookId: 1,
-      userId: 101,
-    },
-    {
-      id: 2,
-      bookId: 3,
-      userId: 102,
-    },
-    {
-      id: 3,
-      bookId: 2,
-      userId: 103,
-    },
-  ];
+  protected get favorites () : FavoriteDto[]{
+    return this.localData
+  }
 
   findMany(): FavoriteDto[] {
     return this.favorites;
@@ -46,26 +35,10 @@ export class FavoriteRepository {
 
     this.favorites.push(newFavorite);
 
+    this.save();
+
     return newFavorite;
   }
-
-//   update(id: number, updateFavoriteDto: UpdateFavoriteDto): FavoriteDto {
-//     const favoriteIndex = this.favorites.findIndex(
-//       (favorite) => favorite.id === id,
-//     );
-
-//     if (favoriteIndex === -1) {
-//       throw new NotFoundException(`Favorite with ID ${id} not found`);
-//     }
-
-//     const updatedFavorite = {
-//       ...this.favorites[favoriteIndex],
-//       ...updateFavoriteDto,
-//     };
-//     this.favorites[favoriteIndex] = updatedFavorite;
-
-//     return updatedFavorite;
-//   }
 
   delete(id: number): void {
     const favoriteIndex = this.favorites.findIndex(
@@ -77,13 +50,15 @@ export class FavoriteRepository {
     }
 
     this.favorites.splice(favoriteIndex, 1);
+
+    this.save()
   }
 
   // handling id
   private getLastFavoriteId(): number {
     const id = this.favorites.length
       ? this.favorites[this.favorites.length - 1].id
-      : 1;
+      : 0;
 
     return id;
   }
