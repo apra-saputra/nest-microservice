@@ -50,6 +50,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
       errPayload.errors = exception['response']['errors'];
     }
 
-    response.status(code).json(errPayload);
+    response.status(errPayload.code).json(errPayload);
   }
 }
